@@ -32,7 +32,7 @@ window.LESSON = {
     { id: 'cut', en: 'cut', nl: 'snijden', g: 'g3', pic: '🔪' },
     { id: 'piece', en: 'piece', nl: 'stukje', g: 'g3', pic: '🍰', altNl: ['stuk'] }
   ],
-  // Zinnen: alleen Engels -> Nederlands nodig
+  // Zinnen: Engels -> Nederlands en Nederlands -> Engels
   phrases: [
     { id: 'p1', en: 'You can fill tacos with beef or chicken.', nl: "Je kunt taco's vullen met rundvlees of kip.", pic: '🌮', tip: 'fill = vullen' },
     { id: 'p2', en: 'Most pizzas have a crunchy crust.', nl: "De meeste pizza's hebben een knapperige korst.", pic: '🍕', tip: 'most = de meeste, crust = korst' },
@@ -98,18 +98,18 @@ window.PLAN = [
     tasks: [ { id: 'd5a', text: 'Luister-spel Groep 2', go: 'listen:g2' }, { id: 'd5b', text: 'Leer-kaarten Groep 3', go: 'learn:g3' } ] },
   { date: '2026-10-26', day: 'ma 26 okt', min: 15, title: 'Alle woorden schrijven', note: 'Schrijven met de hand helpt onthouden.',
     tasks: [ { id: 'd6a', text: 'Typ-chef alle woorden (NL → EN)', go: 'type:all:nl' }, { id: 'd6b', text: 'Printblad: vouwblad NL → EN', go: 'print' } ] },
-  { date: '2026-10-27', day: 'di 27 okt', min: 15, title: 'Zinnen 1 t/m 5', note: 'Zinnen hoef je alleen van Engels naar Nederlands te kennen.',
-    tasks: [ { id: 'd7a', text: 'Zinnen-puzzel 1–5', go: 'phrases:a' }, { id: 'd7b', text: 'Typ-chef alle woorden (EN → NL)', go: 'type:all:en' } ] },
-  { date: '2026-10-28', day: 'wo 28 okt', min: 15, title: 'Zinnen 6 t/m 9 + grammatica', note: 'Uitleg it is / they are: 1 ding of meer dingen?',
-    tasks: [ { id: 'd8a', text: 'Zinnen-puzzel 6–9', go: 'phrases:b' }, { id: 'd8b', text: 'Grammatica-uitleg + spel', go: 'grammar' } ] },
-  { date: '2026-10-29', day: 'do 29 okt', min: 10, title: 'Kort rondje (\'s avonds)', note: 'Middag niet thuis: 10 minuten is genoeg.', busy: true,
-    tasks: [ { id: 'd9a', text: 'Grammatica-spel', go: 'grammar' }, { id: 'd9b', text: 'Lastige woordjes', go: 'tricky' } ] },
+  { date: '2026-10-27', day: 'di 27 okt', min: 15, title: 'Zinnen 1 t/m 5, beide kanten op', note: 'Eerst van Engels naar Nederlands, dan andersom.',
+    tasks: [ { id: 'd7a', text: 'Zinnen-puzzel 1–5 (EN → NL)', go: 'phrases:a' }, { id: 'd7c', text: 'Zinnen-puzzel 1–5 (NL → EN)', go: 'phrases:a:ne' } ] },
+  { date: '2026-10-28', day: 'wo 28 okt', min: 20, title: 'Zinnen 6 t/m 9, beide kanten op', note: 'Daarna nog even de woordjes van Engels naar Nederlands.',
+    tasks: [ { id: 'd8a', text: 'Zinnen-puzzel 6–9 (EN → NL)', go: 'phrases:b' }, { id: 'd8c', text: 'Zinnen-puzzel 6–9 (NL → EN)', go: 'phrases:b:ne' }, { id: 'd7b', text: 'Typ-chef alle woorden (EN → NL)', go: 'type:all:en' } ] },
+  { date: '2026-10-29', day: 'do 29 okt', min: 10, title: 'Grammatica (\'s avonds)', note: 'Middag niet thuis: 10 minuten is genoeg. Uitleg it is / they are: 1 ding of meer dingen?', busy: true,
+    tasks: [ { id: 'd8b', text: 'Grammatica-uitleg + spel', go: 'grammar' } ] },
   { date: '2026-10-30', day: 'vr 30 okt', min: 0, title: 'Vrije dag', note: 'Grotendeels weg. Even niks. Je hersenen slaan het nu op.', rest: true,
-    tasks: [ { id: 'd10a', text: '(Mag) Lastige woordjes, 3 minuten', go: 'tricky', optional: true } ] },
+    tasks: [ { id: 'd10a', text: '(Mag) Zinnen-mix, 5 minuten', go: 'phrases:all:mix', optional: true } ] },
   { date: '2026-10-31', day: 'za 31 okt', min: 20, title: 'Proeftoets 1', note: 'Doe alsof het de echte toets is. Daarna: lastige woordjes nog 1 keer.',
-    tasks: [ { id: 'd11a', text: 'Proeftoets', go: 'test' }, { id: 'd11b', text: 'Lastige woordjes', go: 'tricky' }, { id: 'd11c', text: 'Printblad: grammatica + zinnen', go: 'print' } ] },
+    tasks: [ { id: 'd11a', text: 'Proeftoets', go: 'test' }, { id: 'd11b', text: 'Lastige woordjes', go: 'tricky' }, { id: 'd11c', text: 'Printblad: zinnen + grammatica', go: 'print' } ] },
   { date: '2026-11-01', day: 'zo 1 nov', min: 15, title: 'Generale repetitie', note: 'Laatste keer. Rustig, en op tijd naar bed.',
-    tasks: [ { id: 'd12a', text: 'Proeftoets nog een keer', go: 'test' }, { id: 'd12b', text: 'Printblad: proeftoets op papier', go: 'print' } ] },
+    tasks: [ { id: 'd12d', text: 'Grammatica-spel', go: 'grammar' }, { id: 'd12a', text: 'Proeftoets nog een keer', go: 'test' }, { id: 'd12b', text: 'Printblad: proeftoets op papier', go: 'print' } ] },
   { date: '2026-11-02', day: 'ma 2 nov', min: 5, title: 'TOETSDAG', note: 'Ontbijten, 5 minuten warm draaien en dan: jij kunt dit.', test: true,
     tasks: [ { id: 'd13a', text: '(Mag) 5 min warm draaien: luister-spel', go: 'listen:all', optional: true } ] }
 ];

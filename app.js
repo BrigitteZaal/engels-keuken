@@ -75,7 +75,7 @@ function rec(key, ok) { const s = S.stats[key] || (S.stats[key] = { ok: 0, bad: 
 const st = k => S.stats[k] || { ok: 0, bad: 0, streak: 0 };
 const dirDone = k => st(k).ok >= 2 && st(k).streak >= 1;
 const wordGot = w => dirDone('w:' + w.id + ':ne') && dirDone('w:' + w.id + ':en');
-const phraseGot = p => dirDone('p:' + p.id);
+const phraseGot = p => dirDone('p:' + p.id) && dirDone('p:' + p.id + ':ne');
 const weakness = k => { const s = st(k); return (s.bad * 2 + 1) / (s.ok + 1) + (s.streak ? 0 : 0.5); };
 const LEVELS = [[0, 'Afwashulp', '🧽'], [40, 'Hulpkok', '🥄'], [120, 'Kok', '🍳'], [250, 'Souschef', '🔪'], [450, 'Chef-kok', '👨‍🍳'], [700, 'Sterrenchef', '🌟']];
 function level() { let i = 0; LEVELS.forEach((l, j) => { if (S.stars >= l[0]) i = j; }); const cur = LEVELS[i], nxt = LEVELS[i + 1]; return { name: cur[1], ic: cur[2], pct: nxt ? (S.stars - cur[0]) / (nxt[0] - cur[0]) * 100 : 100, next: nxt }; }
@@ -86,7 +86,7 @@ const BADGES = [
   { id: 'g1', ic: '🥕', name: 'Groente-kenner', how: 'Alle woorden van Groep 1 in je voorraadkast' },
   { id: 'g2', ic: '🌶️', name: 'Smaak-proever', how: 'Alle woorden van Groep 2 in je voorraadkast' },
   { id: 'g3', ic: '🍳', name: 'Keuken-baas', how: 'Alle woorden van Groep 3 in je voorraadkast' },
-  { id: 'phr', ic: '💬', name: 'Zinnen-chef', how: 'Alle 9 zinnen 2 keer goed' },
+  { id: 'phr', ic: '💬', name: 'Zinnen-chef', how: 'Alle 9 zinnen 2 keer goed, beide kanten op' },
   { id: 'gram', ic: '🧠', name: 'Grammatica-held', how: 'Grammatica-ronde met 8 of meer goed' },
   { id: 'combo5', ic: '🔥', name: 'Op dreef', how: '5 keer achter elkaar goed' },
   { id: 'typer', ic: '⌨️', name: 'Typ-tijger', how: '20 woorden goed getypt' },
@@ -131,6 +131,13 @@ const toTiles = s => s.replace(/[.]$/, '').split(' ');
 function phraseMc(p) {
   const others = shuffle(L.phrases.filter(x => x.id !== p.id)).slice(0, 2);
   return { kind: 'mc', key: 'p:' + p.id, pic: p.pic, lang: 'Engels', prompt: p.en, big: false, ask: 'Luister. Welke Nederlandse zin hoort erbij?', sayPrompt: [p.en, 'en'], autoSay: true, opts: shuffle([p, ...others]).map(o => ({ t: o.nl, ok: o === p })), answer: p.nl, after: [p.nl, 'nl'], tip: p.tip };
+}
+function phraseMcNE(p) {
+  const others = shuffle(L.phrases.filter(x => x.id !== p.id)).slice(0, 2);
+  return { kind: 'mc', key: 'p:' + p.id + ':ne', pic: p.pic, lang: 'Nederlands', prompt: p.nl, ask: 'Welke Engelse zin hoort erbij?', sayPrompt: [p.nl, 'nl'], opts: shuffle([p, ...others]).map(o => ({ t: o.en, ok: o === p })), answer: p.en, after: [p.en, 'en'], tip: p.tip };
+}
+function phraseTilesNE(p, test) {
+  return { kind: 'tiles', key: 'p:' + p.id + ':ne', pic: test ? '' : p.pic, lang: 'Nederlands', prompt: p.nl, ask: 'Maak de Engelse zin.', sayPrompt: [p.nl, 'nl'], target: toTiles(p.en), extra: [], answer: p.en, sayAnswer: [p.en, 'en'], tip: test ? '' : p.tip, test };
 }
 function phraseTiles(p, test) {
   return { kind: 'tiles', key: 'p:' + p.id, pic: test ? '' : p.pic, lang: 'Engels', prompt: p.en, ask: 'Maak de Nederlandse zin.', sayPrompt: [p.en, 'en'], autoSay: !test, target: toTiles(p.nl), extra: [], answer: p.nl, sayAnswer: [p.nl, 'nl'], tip: test ? '' : p.tip, test };
@@ -192,20 +199,22 @@ function buildRound(mode, a, b) {
   }
   if (mode === 'phrases') {
     const ps = a === 'a' ? L.phrases.slice(0, 5) : a === 'b' ? L.phrases.slice(5) : L.phrases;
-    return { title: 'Zinnen-puzzel', qs: shuffle(ps).map(phraseMc).concat(shuffle(ps).map(p => phraseTiles(p))) };
+    if (b === 'ne') return { title: 'Zinnen-puzzel: Nederlands → Engels', qs: shuffle(ps).map(phraseMcNE).concat(shuffle(ps).map(p => phraseTilesNE(p))) };
+    if (b === 'mix') return { title: 'Zinnen-mix: beide kanten op', qs: shuffle(ps.flatMap(p => [phraseTiles(p), phraseTilesNE(p)])).slice(0, 10) };
+    return { title: 'Zinnen-puzzel: Engels → Nederlands', qs: shuffle(ps).map(phraseMc).concat(shuffle(ps).map(p => phraseTiles(p))) };
   }
   if (mode === 'grammar') return { title: 'Grammatica-spel', qs: Array.from({ length: 10 }, () => gramQ()), grammar: true };
   if (mode === 'tricky') {
     const items = [];
     L.words.forEach(w => { items.push({ k: 'w:' + w.id + ':ne', f: () => typeWord(w, 'ne') }); items.push({ k: 'w:' + w.id + ':en', f: () => Math.random() < .5 ? typeWord(w, 'en') : mcWord(w, 'en') }); });
-    L.phrases.forEach(p => items.push({ k: 'p:' + p.id, f: () => phraseTiles(p) }));
+    L.phrases.forEach(p => { items.push({ k: 'p:' + p.id, f: () => phraseTiles(p) }); items.push({ k: 'p:' + p.id + ':ne', f: () => phraseTilesNE(p) }); });
     const top = shuffle(items).sort((x, y) => weakness(y.k) - weakness(x.k)).slice(0, 10);
     return { title: 'Lastige woordjes', qs: shuffle(top).map(i => i.f()) };
   }
   if (mode === 'test') {
     const ne = shuffle(L.words).slice(0, 7).map(w => typeWord(w, 'ne', true));
     const en = shuffle(L.words.filter(w => !ne.some(q => q.key.includes(':' + w.id + ':')))).slice(0, 7).map(w => typeWord(w, 'en', true));
-    const ph = shuffle(L.phrases).slice(0, 4).map(p => phraseTiles(p, true));
+    const phs = shuffle(L.phrases); const ph = [...phs.slice(0, 2).map(p => phraseTiles(p, true)), ...phs.slice(2, 4).map(p => phraseTilesNE(p, true))];
     const gr = [];
     while (gr.length < 6) { const q = gramQ(true); if (!gr.some(x => x.key === q.key && x.prompt === q.prompt)) gr.push(q); }
     return { title: 'Proeftoets', qs: [...ne, ...en, ...ph, ...gr], test: true };
@@ -276,7 +285,7 @@ function viewPlan() {
 function viewModes() {
   setTab('modes');
   const card = (h, ic, t, s) => `<a class="card mode" href="${h}"><span class="ic">${ic}</span><b>${t}</b><span class="small muted">${s}</span></a>`;
-  app.innerHTML = `<section><h1>Kies een spel</h1><p class="muted">Woorden leer je allebei de kanten op. Zinnen van Engels naar Nederlands. Grammatica allebei de kanten op.</p></section>
+  app.innerHTML = `<section><h1>Kies een spel</h1><p class="muted">Woorden, zinnen en grammatica leer je allebei de kanten op: van Engels naar Nederlands én van Nederlands naar Engels.</p></section>
   ${L.groups.map(g => `<section><h2>${g.short}: ${g.name} <span class="small muted">${wordsFor(g.id).map(w => w.pic).join(' ')}</span></h2><div class="grid g3">
     ${card('#play/learn/' + g.id, '👀', 'Leer-kaarten', 'Kijken, luisteren, nazeggen.')}
     ${card('#play/listen/' + g.id, '🎧', 'Luister-spel', 'Hoor het woord en kies.')}
@@ -288,10 +297,14 @@ function viewModes() {
     ${card('#play/type/all/nl', '⌨️', 'Typ-mix NL → EN', '12 woorden.')}
     ${card('#play/type/all/en', '✍️', 'Typ-mix EN → NL', '12 woorden.')}
   </div></section>
-  <section><h2>Zinnen (Engels → Nederlands)</h2><div class="grid g3">
-    ${card('#play/plearn', '👀', 'Zinnen luisteren', 'Alle 9 zinnen rustig horen en lezen.')}
-    ${card('#play/phrases/a', '🧩', 'Zinnen-puzzel 1–5', "Taco's, pizza, pannenkoeken, salade, handen.")}
-    ${card('#play/phrases/b', '🧩', 'Zinnen-puzzel 6–9', 'Smaakt heerlijk, gezond, iedereen, groenten.')}
+  <section><h2>Zinnen (Engels ↔ Nederlands)</h2><div class="grid g3">
+    ${card('#play/plearn', '👀', 'Zinnen luisteren EN → NL', 'Alle 9 zinnen rustig horen en lezen.')}
+    ${card('#play/plearn/ne', '👀', 'Zinnen luisteren NL → EN', 'Eerst Nederlands, dan de Engelse zin.')}
+    ${card('#play/phrases/a', '🧩', 'Zinnen 1–5: EN → NL', "Taco's, pizza, pannenkoeken, salade, handen.")}
+    ${card('#play/phrases/a/ne', '🧩', 'Zinnen 1–5: NL → EN', 'Maak de Engelse zin.')}
+    ${card('#play/phrases/b', '🧩', 'Zinnen 6–9: EN → NL', 'Smaakt heerlijk, gezond, iedereen, groenten.')}
+    ${card('#play/phrases/b/ne', '🧩', 'Zinnen 6–9: NL → EN', 'Maak de Engelse zin.')}
+    ${card('#play/phrases/all/mix', '🔀', 'Zinnen-mix', 'Alle zinnen, beide kanten op.')}
   </div></section>
   <section><h2>Grammatica: it is / they are</h2><div class="grid g3">
     ${card('#play/gexplain', '💡', 'Uitleg', 'Eén ding of meer dingen?')}
@@ -305,9 +318,9 @@ function viewModes() {
 function viewShelf() {
   setTab('shelf');
   const dots = w => { const a = Math.min(2, st('w:' + w.id + ':ne').ok), b = Math.min(2, st('w:' + w.id + ':en').ok); return [a >= 1, a >= 2, b >= 1, b >= 2].map(x => `<i class="${x ? 'on' : ''}"></i>`).join(''); };
-  app.innerHTML = `<section><h1>Mijn voorraadkast</h1><p class="muted" style="max-width:40em">Elk woord dat je 2 keer goed hebt van Nederlands naar Engels én 2 keer van Engels naar Nederlands, komt in je kast. De bolletjes laten zien hoe ver je bent.</p></section>
+  app.innerHTML = `<section><h1>Mijn voorraadkast</h1><p class="muted" style="max-width:40em">Elk woord en elke zin die je 2 keer goed hebt van Nederlands naar Engels én 2 keer van Engels naar Nederlands, komt in je kast. De bolletjes laten zien hoe ver je bent.</p></section>
   ${L.groups.map(g => `<section><h2>${g.short}: ${g.name}</h2><div class="shelf">${wordsFor(g.id).map(w => `<div class="jar ${wordGot(w) ? 'got' : ''}"><div class="p">${w.pic}</div><b>${esc(w.en)}</b><div class="small muted">${esc(w.nl)}</div><div class="dots">${dots(w)}</div></div>`).join('')}</div></section>`).join('')}
-  <section><h2>Zinnen</h2><div class="shelf">${L.phrases.map((p, i) => `<div class="jar ${phraseGot(p) ? 'got' : ''}"><div class="p">${p.pic}</div><b>Zin ${i + 1}</b><div class="small muted">${esc(p.en.split(' ').slice(0, 3).join(' '))}…</div></div>`).join('')}</div></section>
+  <section><h2>Zinnen</h2><div class="shelf">${L.phrases.map((p, i) => `<div class="jar ${phraseGot(p) ? 'got' : ''}"><div class="p">${p.pic}</div><b>Zin ${i + 1}</b><div class="small muted">${esc(p.en.split(' ').slice(0, 3).join(' '))}…</div><div class="dots">${[st('p:' + p.id).ok >= 1, st('p:' + p.id).ok >= 2, st('p:' + p.id + ':ne').ok >= 1, st('p:' + p.id + ':ne').ok >= 2].map(x => `<i class="${x ? 'on' : ''}"></i>`).join('')}</div></div>`).join('')}</div></section>
   <section><h2>Medailles</h2><div class="grid g2">${BADGES.map(b => `<div class="badge ${S.badges[b.id] ? 'got' : ''}"><span class="b">${b.ic}</span><div><b>${b.name}</b><div class="small muted">${b.how}</div></div></div>`).join('')}</div></section>
   ${S.tests.length ? `<section class="card"><h2>Proeftoetsen</h2>${S.tests.map(t => `<div class="row" style="justify-content:space-between;border-bottom:2px solid var(--line);padding:6px 0"><span>${esc(t.date)}</span><b>${t.score} van ${t.total} goed · cijfer ${t.grade.toFixed(1).replace('.', ',')}</b></div>`).join('')}</section>` : ''}
   ${syncHtml()}`;
@@ -336,22 +349,26 @@ function viewLearn(g, tid) {
   };
   draw(); setTimeout(() => say(ws[0].en), 300);
 }
-function viewPLearn(tid) {
-  setTab('modes'); let i = 0, show = false; const ps = L.phrases;
+function viewPLearn(tid, dir) {
+  setTab('modes'); let i = 0, show = false; const ps = L.phrases; const ne = dir === 'ne';
+  const sayFront = p => ne ? sayNl(p.nl) : say(p.en);
   const draw = () => { const p = ps[i];
+    const front = ne ? p.nl : p.en, back = ne ? p.en : p.nl;
     app.innerHTML = `<div class="stage"><div class="row" style="justify-content:space-between"><a href="#modes" class="small">← terug</a><span class="small muted">Zin ${i + 1} van ${ps.length}</span></div>
     <div class="progress">${ps.map((_, j) => `<i class="${j < i ? 'ok' : j === i ? 'now' : ''}"></i>`).join('')}</div>
-    <div class="card q"><div class="pic">${p.pic}</div><div class="lang">Engels</div><div class="sent">${esc(p.en)}</div>
-    <div class="row" style="justify-content:center;margin-top:10px"><button class="speak" id="s1">🔊 Hoor het</button><button class="speak slow" id="s2">🐢 Langzaam</button></div>
+    <div class="card q"><div class="pic">${p.pic}</div><div class="lang">${ne ? 'Nederlands' : 'Engels'}</div><div class="sent">${esc(front)}</div>
+    <div class="row" style="justify-content:center;margin-top:10px"><button class="speak" id="s1">🔊 Hoor het</button>${ne ? '' : '<button class="speak slow" id="s2">🐢 Langzaam</button>'}</div>
     <p class="small" style="margin-top:12px;color:var(--sky);font-weight:600">Woord-tip: ${esc(p.tip)}</p>
-    <div style="${show ? '' : 'display:none'};margin-top:12px"><div class="lang">Nederlands</div><div class="sent" style="color:var(--leaf)">${esc(p.nl)}</div></div>
-    <div class="coach" style="text-align:left"><span class="face">🧑‍🍳</span><div>Probeer eerst zelf te zeggen wat het betekent. Druk dan op <b>Laat zien</b>.</div></div></div>
+    <div style="${show ? '' : 'display:none'};margin-top:12px"><div class="lang">${ne ? 'Engels' : 'Nederlands'}</div><div class="sent" style="color:var(--leaf)">${esc(back)}</div>
+    ${ne ? '<div class="row" style="justify-content:center;margin-top:6px"><button class="speak" id="s3">🔊 Hoor Engels</button><button class="speak slow" id="s4">🐢 Langzaam</button></div>' : ''}</div>
+    <div class="coach" style="text-align:left"><span class="face">🧑‍🍳</span><div>Probeer eerst zelf te zeggen hoe het ${ne ? 'in het Engels is' : 'in het Nederlands is'}. Druk dan op <b>Laat zien</b>.</div></div></div>
     <div class="row" style="justify-content:center;margin-top:16px">${i ? '<button class="btn ghost" id="prev">← Vorige</button>' : ''}<button class="btn mustard" id="flip">${show ? 'Verberg' : 'Laat zien'}</button><button class="btn leaf" id="next">${i < ps.length - 1 ? 'Volgende →' : 'Klaar!'}</button></div></div>`;
-    $('#s1').onclick = () => say(p.en); $('#s2').onclick = () => say(p.en, 'en', .55);
-    $('#flip').onclick = () => { show = !show; draw(); if (show) sayNl(p.nl); };
-    $('#next').onclick = () => { if (i < ps.length - 1) { i++; show = false; draw(); say(ps[i].en); } else finishSimple(ps.length, 'Zinnen luisteren', tid, '#play/phrases/a', 'Nu de zinnen-puzzel?'); };
-    const pv = $('#prev'); if (pv) pv.onclick = () => { i--; show = false; draw(); say(ps[i].en); };
-  }; draw(); setTimeout(() => say(ps[0].en), 300);
+    $('#s1').onclick = () => sayFront(p); const s2 = $('#s2'); if (s2) s2.onclick = () => say(p.en, 'en', .55);
+    const s3 = $('#s3'); if (s3) { s3.onclick = () => say(p.en); $('#s4').onclick = () => say(p.en, 'en', .55); }
+    $('#flip').onclick = () => { show = !show; draw(); if (show) { ne ? say(p.en) : sayNl(p.nl); } };
+    $('#next').onclick = () => { if (i < ps.length - 1) { i++; show = false; draw(); sayFront(ps[i]); } else finishSimple(ps.length, 'Zinnen luisteren', tid, ne ? '#play/phrases/a/ne' : '#play/phrases/a', 'Nu de zinnen-puzzel?'); };
+    const pv = $('#prev'); if (pv) pv.onclick = () => { i--; show = false; draw(); sayFront(ps[i]); };
+  }; draw(); setTimeout(() => sayFront(ps[0]), 300);
 }
 function viewGExplain(tid) {
   setTab('modes');
@@ -593,7 +610,7 @@ function render() {
   if (p[0] === 'shelf') return viewShelf();
   if (p[0] === 'play') {
     if (p[1] === 'learn') return viewLearn(p[2] || 'g1', tid);
-    if (p[1] === 'plearn') return viewPLearn(tid);
+    if (p[1] === 'plearn') return viewPLearn(tid, p[2]);
     if (p[1] === 'gexplain') return viewGExplain(tid);
     if (p[1] === 'grammar' && tid && !S.badges.seenGx) { S.badges.seenGx = 1; save(); return viewGExplain(tid); }
     return viewPlay(p[1], p[2], p[3], tid);

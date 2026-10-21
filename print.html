@@ -59,11 +59,11 @@ const head = (t, s, n) => `<div class="head"><div><h1>${t}</h1><p class="sub" st
 const pages = [];
 
 // 1 Planning
-pages.push(`${head('Mijn plan tot de toets', 'Vink af wat je gedaan hebt en kleur een ster. Elke dag een klein beetje!', 1)}
+pages.push(`${head('Mijn plan tot de toets', 'Vink af en kleur een ster. Donderdag kort, vrijdag vrij (of inhalen). Lukt een dag niet? Schuif gewoon een dag op.', 1)}
 <table class="plan" style="font-size:11.5pt"><tr><th style="width:24mm">Dag</th><th>Wat ga ik doen?</th><th style="width:16mm">Tijd</th><th style="width:16mm">Klaar</th><th style="width:16mm">Ster</th></tr>
 ${P.map(d => `<tr><td><b>${esc(d.day)}</b></td><td><b>${esc(d.title)}</b><br><span style="font-size:9.5pt">${d.tasks.map(t => esc(t.text)).join(' · ')}</span></td><td>${d.test ? 'toets' : d.min ? d.min + ' min' : 'vrij'}</td><td style="text-align:center"><span class="chk"></span></td><td style="text-align:center"><span class="star">★</span></td></tr>`).join('')}
 </table>
-<div class="tip"><b>Donderdag</b> ben je 's middags weg: dan alleen een kort rondje. <b>Vrijdag</b> is vrij (of inhaaldag). Lukt een dag niet? Geen probleem, schuif gewoon een dag op.</div>`);
+`);
 
 // 2-3 Woordkaartjes
 const cardsHtml = ws => `<div class="cards">${ws.map(w => `<div class="fc"><div><span class="lab">Engels</span><span class="pic">${w.pic}</span><span class="en">${esc(w.en)}</span></div><div class="nl"><span class="lab">Nederlands</span><span>${esc(w.nl)}</span></div></div>`).join('')}</div>`;
@@ -86,11 +86,17 @@ ${order2.map(i => L.words[i]).map(w => `<tr><td><b>${esc(w.en)}</b></td><td></td
 // 6 Zinnen
 pages.push(`${head('Zinnen: Engels → Nederlands', 'Lees de Engelse zin hardop. Wat betekent hij? Schrijf de Nederlandse zin op. De woord-tip helpt je.', 6)}
 ${L.phrases.map((p, i) => `<div class="q"><span class="num">${i + 1}.</span> <b>${esc(p.en)}</b> <span style="font-size:10pt;color:#2F6FB5">(tip: ${esc(p.tip)})</span><div class="lines"></div></div>`).join('')}
-<div class="tip">Antwoorden staan op blad 9.</div>`);
+<div class="tip">Antwoorden staan op blad 10.</div>`);
+
+// 7 Zinnen NL->EN
+const ordP = [4,1,7,0,5,3,8,2,6];
+pages.push(`${head('Zinnen: Nederlands → Engels', 'Lees de Nederlandse zin. Hoe zeg je dat in het Engels? Schrijf de Engelse zin op. Gebruik de woord-tip.', 7)}
+${ordP.map(i => L.phrases[i]).map((p, i) => `<div class="q"><span class="num">${i + 1}.</span> <b>${esc(p.nl)}</b> <span style="font-size:10pt;color:#2F6FB5">(tip: ${esc(p.tip)})</span><div class="lines"></div></div>`).join('')}
+<div class="tip">Antwoorden staan op blad 10. Een woord net anders geschreven? Geen probleem: schrijf het goed over.</div>`);
 
 // 7 Grammatica
 const gA = [['🍅','The tomato.','red.','It is','They are'],['🥕🥕','The carrots.','crunchy.','It is','They are'],['🧀','The cheese.','creamy.','It is','They are'],['🍟🍟','The fries.','greasy.','It is','They are'],['🍋','The lemon.','sweet.','It is not','They are not'],['🌮🌮','The tacos.','spicy.','It is not','They are not']];
-pages.push(`${head('Grammatica: it is / they are', '1 ding → it is (het is). Meer dingen → they are (ze zijn). Niet → is not / are not.', 7)}
+pages.push(`${head('Grammatica: it is / they are', '1 ding → it is (het is). Meer dingen → they are (ze zijn). Niet → is not / are not.', 8)}
 <h2>A. Omcirkel het goede begin</h2>
 <div class="two">${gA.map((g, i) => `<div class="q"><span class="num">${i + 1}.</span> ${g[0]} ${g[1]}<br><span class="circle">${g[3]}</span> <span class="circle">${g[4]}</span> ${g[2]}</div>`).join('')}</div>
 <h2>B. Schrijf korter (of langer)</h2>
@@ -103,12 +109,13 @@ ${["It's spicy.","They are healthy.","It is not greasy.","They're not crunchy."]
 // 8 Proeftoets
 const tNE = ['cucumber','beef','crunchy','sour','meatballs','boil','piece','lettuce'].map(id => L.words.find(w => w.id === id));
 const tEN = ['carrot','cheese','creamy','spicy','smelly','bake','cut','greasy'].map(id => L.words.find(w => w.id === id));
-const tP = [L.phrases[1], L.phrases[5], L.phrases[7], L.phrases[0]];
-pages.push(`${head('Proeftoets op papier', 'Doe het zonder spiekbriefje. Je mag rustig de tijd nemen. Kijk daarna zelf na met blad 9.', 8)}
+const tP = [L.phrases[1], L.phrases[5]]; const tPn = [L.phrases[7], L.phrases[0]];
+pages.push(`${head('Proeftoets op papier', 'Doe het zonder spiekbriefje. Je mag rustig de tijd nemen. Kijk daarna zelf na met blad 10.', 9)}
 <div class="two"><div><h2>1. Schrijf in het Engels</h2>${tNE.map((w,i)=>`<div class="q"><span class="num">${i+1}.</span> ${esc(w.nl)} <span style="display:inline-block;width:36mm;border-bottom:1.5px solid #2B2118">&nbsp;</span></div>`).join('')}</div>
 <div><h2>2. Schrijf in het Nederlands</h2>${tEN.map((w,i)=>`<div class="q"><span class="num">${i+1}.</span> <b>${esc(w.en)}</b> <span style="display:inline-block;width:36mm;border-bottom:1.5px solid #2B2118">&nbsp;</span></div>`).join('')}</div></div>
-<h2>3. Wat betekent de zin?</h2>${tP.map((p,i)=>`<div class="q"><span class="num">${i+1}.</span> <b>${esc(p.en)}</b><div class="lines" style="height:8mm"></div></div>`).join('')}
-<h2>4. Grammatica</h2>
+<div class="two"><div><h2>3. Zinnen: Engels → Nederlands</h2>${tP.map((p,i)=>`<div class="q"><span class="num">${i+1}.</span> <b>${esc(p.en)}</b><div class="lines" style="height:8mm"></div><div class="lines" style="height:8mm"></div></div>`).join('')}
+</div><div><h2>4. Zinnen: Nederlands → Engels</h2>${tPn.map((p,i)=>`<div class="q"><span class="num">${i+1}.</span> <b>${esc(p.nl)}</b><div class="lines" style="height:8mm"></div><div class="lines" style="height:8mm"></div></div>`).join('')}</div></div>
+<h2>5. Grammatica</h2>
 <div class="q"><span class="num">a.</span> 🥒🥒 The cucumbers. <span class="circle">It is</span> <span class="circle">They are</span> green.</div>
 <div class="q"><span class="num">b.</span> 🍰 The cake. <span class="circle">It is</span> <span class="circle">They are</span> sweet.</div>
 <div class="q"><span class="num">c.</span> Schrijf korter: They are → <span style="display:inline-block;width:35mm;border-bottom:1.5px solid #2B2118">&nbsp;</span></div>
@@ -117,20 +124,22 @@ pages.push(`${head('Proeftoets op papier', 'Doe het zonder spiekbriefje. Je mag 
 <div style="margin-top:4mm"><span class="score">Aantal goed: ______ van 25</span></div>`);
 
 // 9 Antwoorden
-pages.push(`${head('Antwoorden', 'Om zelf na te kijken. Fout? Geen probleem: schrijf het goede antwoord 1 keer over.', 9)}
+pages.push(`${head('Antwoorden', 'Om zelf na te kijken. Fout? Geen probleem: schrijf het goede antwoord 1 keer over.', 10)}
 <div class="two"><div>
-<h2>Blad 6 · Zinnen</h2>${L.phrases.map((p,i)=>`<div class="q" style="font-size:11.5pt"><span class="num">${i+1}.</span> ${esc(p.nl)}</div>`).join('')}
+<h2>Blad 6 · Zinnen EN → NL</h2>${L.phrases.map((p,i)=>`<div class="q" style="font-size:10.5pt;margin-bottom:1.5mm"><span class="num">${i+1}.</span> ${esc(p.nl)}</div>`).join('')}
+<h2>Blad 7 · Zinnen NL → EN</h2>${ordP.map(i=>L.phrases[i]).map((p,i)=>`<div class="q" style="font-size:10.5pt;margin-bottom:1.5mm"><span class="num">${i+1}.</span> ${esc(p.en)}</div>`).join('')}
 </div><div>
-<h2>Blad 7 · Grammatica</h2>
+<h2>Blad 8 · Grammatica</h2>
 <div style="font-size:11.5pt"><b>A.</b> 1 It is · 2 They are · 3 It is · 4 They are · 5 It is not · 6 They are not<br>
 <b>B.</b> 1 It's · 2 They're · 3 It's not · 4 They're not · 5 It is · 6 They are not<br>
 <b>C.</b> 1 It is (It's) sweet. · 2 They are (They're) soft. · 3 It is not (It's not) hard. · 4 They are not (They're not) sour.<br>
 <b>D.</b> 1 Het is pittig. · 2 Ze zijn gezond. · 3 Het is niet vettig. · 4 Ze zijn niet knapperig.</div>
-<h2>Blad 8 · Proeftoets</h2>
+<h2>Blad 9 · Proeftoets</h2>
 <div style="font-size:11.5pt"><b>1.</b> ${tNE.map((w,i)=>`${i+1} ${esc(w.en)}`).join(' · ')}<br>
 <b>2.</b> ${tEN.map((w,i)=>`${i+1} ${esc(w.nl)}`).join(' · ')}<br>
 <b>3.</b> ${tP.map((p,i)=>`${i+1} ${esc(p.nl)}`).join('<br>')}<br>
-<b>4.</b> a They are · b It is · c They're · d It is not (It's not) spicy. · e Ze zijn niet zacht.</div>
+<b>4.</b> ${tPn.map((p,i)=>`${i+1} ${esc(p.en)}`).join('<br>')}<br>
+<b>5.</b> a They are · b It is · c They're · d It is not (It's not) spicy. · e Ze zijn niet zacht.</div>
 <div class="tip" style="margin-top:4mm;font-size:11pt"><b>Cijfer-wijzer:</b> 23–25 goed = super! · 19–22 = heel goed · 15–18 = goed op weg · minder = nog even oefenen met de website.</div>
 </div></div>`);
 
