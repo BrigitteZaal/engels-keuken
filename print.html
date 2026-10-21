@@ -1,0 +1,140 @@
+<!doctype html>
+<html lang="nl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Printbladen – Finn's Engelse Keuken</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Lexend:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+@page{size:A4;margin:13mm 14mm}
+*{box-sizing:border-box}
+body{font-family:'Lexend',system-ui,sans-serif;color:#2B2118;margin:0;background:#E9E1D3;letter-spacing:.02em;line-height:1.45;font-size:13.5pt}
+.bar{position:sticky;top:0;background:#2B2118;color:#fff;padding:12px 18px;display:flex;gap:12px;align-items:center;flex-wrap:wrap;z-index:5;font-size:11pt}
+.bar button,.bar a{font:inherit;font-weight:700;background:#E0482F;color:#fff;border:0;border-radius:10px;padding:8px 14px;cursor:pointer;text-decoration:none}
+.bar a{background:#fff;color:#2B2118}
+.page{width:210mm;min-height:297mm;margin:16px auto;background:#fff;padding:13mm 14mm;box-shadow:0 4px 18px rgba(0,0,0,.15);position:relative;overflow:hidden}
+@media print{body{background:#fff;font-size:12.5pt}.bar{display:none}.page{margin:0;box-shadow:none;width:auto;min-height:0;padding:0;page-break-after:always;break-after:page}.page:last-child{page-break-after:auto;break-after:auto}}
+h1{font-size:20pt;margin:0 0 2mm;line-height:1.2}
+h2{font-size:13.5pt;margin:4mm 0 2mm}
+.sub{color:#6B5B4B;font-size:11pt;margin:0 0 4mm}
+.head{display:flex;justify-content:space-between;align-items:flex-start;border-bottom:3px solid #E0482F;padding-bottom:3mm;margin-bottom:4mm}
+.head .nm{font-size:9.5pt;color:#6B5B4B;text-align:right;white-space:nowrap;padding-left:6mm}
+.tip{background:#FFF3D6;border-radius:4mm;padding:3mm 4mm;font-size:11pt;margin:3mm 0}
+table{width:100%;border-collapse:collapse}
+td,th{border:1.5px solid #2B2118;padding:1.4mm 3mm;vertical-align:middle;text-align:left}
+th{background:#F4EBDD;font-size:11pt}
+.wline{height:11mm}
+.plan td{padding:1mm 2.5mm}
+.fold{border-left:2.5px dashed #E0482F!important}
+.ans{color:#3E8E4A;font-weight:600}
+.chk{width:7mm;height:7mm;border:2px solid #2B2118;border-radius:2mm;display:inline-block}
+.cards{display:grid;grid-template-columns:1fr 1fr;gap:0}
+.fc{display:grid;grid-template-columns:1fr 1fr;border:1.5px solid #2B2118;height:34mm;margin:-.75px}
+.fc>div{display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:2mm}
+.fc .en{font-weight:700;font-size:15pt}
+.fc .nl{font-size:14pt;border-left:2px dashed #999}
+.fc .pic{font-size:18pt;line-height:1}
+.fc .lab{font-size:8pt;color:#6B5B4B;text-transform:uppercase;letter-spacing:.1em}
+.lines{border-bottom:1.5px solid #2B2118;height:11mm}
+.q{margin:0 0 2.6mm}
+.num{display:inline-block;width:7mm;font-weight:700}
+.circle{display:inline-block;border:1.5px solid #2B2118;border-radius:99px;padding:.5mm 3mm;margin:0 1mm;font-size:12pt}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:6mm}
+.score{border:2px solid #2B2118;border-radius:4mm;padding:3mm 5mm;display:inline-block;font-weight:700}
+.foot{position:absolute;bottom:6mm;left:14mm;right:14mm;font-size:8.5pt;color:#8a7a6a;display:flex;justify-content:space-between}
+@media print{.foot{display:none}}
+.star{font-size:14pt;color:#ccc}
+</style>
+</head>
+<body>
+<div class="bar"><b>Printbladen voor Finn</b><span>A4, staand. Print alles, of kies in het printvenster de pagina's die je nodig hebt.</span><button onclick="print()">Printen</button><a href="Printbladen_Finn_Engels.pdf" download>Download als PDF</a><a href="index.html">Terug naar de oefen-website</a></div>
+<div id="pages"></div>
+<script src="data.js"></script>
+<script>
+const L = LESSON, P = PLAN;
+const esc = s => String(s).replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const head = (t, s, n) => `<div class="head"><div><h1>${t}</h1><p class="sub" style="margin:0">${s}</p></div><div class="nm">Engels · Song 2, Lesson 2<br>Toets: ma 2 november<br><b>Blad ${n}</b></div></div>`;
+const pages = [];
+
+// 1 Planning
+pages.push(`${head('Mijn plan tot de toets', 'Vink af wat je gedaan hebt en kleur een ster. Elke dag een klein beetje!', 1)}
+<table class="plan" style="font-size:11.5pt"><tr><th style="width:24mm">Dag</th><th>Wat ga ik doen?</th><th style="width:16mm">Tijd</th><th style="width:16mm">Klaar</th><th style="width:16mm">Ster</th></tr>
+${P.map(d => `<tr><td><b>${esc(d.day)}</b></td><td><b>${esc(d.title)}</b><br><span style="font-size:9.5pt">${d.tasks.map(t => esc(t.text)).join(' · ')}</span></td><td>${d.test ? 'toets' : d.min ? d.min + ' min' : 'vrij'}</td><td style="text-align:center"><span class="chk"></span></td><td style="text-align:center"><span class="star">★</span></td></tr>`).join('')}
+</table>
+<div class="tip"><b>Donderdag</b> ben je 's middags weg: dan alleen een kort rondje. <b>Vrijdag</b> is vrij (of inhaaldag). Lukt een dag niet? Geen probleem, schuif gewoon een dag op.</div>`);
+
+// 2-3 Woordkaartjes
+const cardsHtml = ws => `<div class="cards">${ws.map(w => `<div class="fc"><div><span class="lab">Engels</span><span class="pic">${w.pic}</span><span class="en">${esc(w.en)}</span></div><div class="nl"><span class="lab">Nederlands</span><span>${esc(w.nl)}</span></div></div>`).join('')}</div>`;
+pages.push(`${head('Woordkaartjes (1)', 'Knip langs de dikke lijnen. Vouw op de stippellijn en plak dicht. Nu heb je kaartjes met Engels voor en Nederlands achter.', 2)}${cardsHtml(L.words.slice(0, 14))}`);
+pages.push(`${head('Woordkaartjes (2)', 'Spel: leg de kaartjes op een stapel. Lees het woord, zeg de vertaling, draai om. Goed? Op de "ken ik"-stapel!', 3)}${cardsHtml(L.words.slice(14))}
+<div class="tip" style="margin-top:6mm"><b>Spelletje met papa of mama:</b> zij zeggen het Nederlandse woord, jij schrijft het Engels op een wisbordje of papiertje. Daarna andersom.</div>`);
+
+// 4 Vouwblad NL->EN
+const order1 = [3,0,7,12,5,9,20,1,15,18,8,22,4,13,17,2,10,21,6,14,19,11,16];
+pages.push(`${head('Vouwblad: Nederlands → Engels', 'Vouw de groene kolom (rechts) naar achteren. Schrijf het Engels op. Klaar? Vouw open en kijk na. Fout? Schrijf het nog 1 keer goed in de kolom "Nog 1 keer".', 4)}
+<table><tr><th style="width:38mm">Nederlands</th><th>Engels (zelf schrijven)</th><th style="width:40mm">Nog 1 keer</th><th class="fold" style="width:40mm">Antwoord</th></tr>
+${order1.map(i => L.words[i]).map(w => `<tr><td>${esc(w.nl)}</td><td></td><td></td><td class="fold ans">${esc(w.en)}</td></tr>`).join('')}</table>`);
+
+// 5 Vouwblad EN->NL
+const order2 = [10,4,16,1,21,8,13,0,19,6,14,2,22,11,5,17,9,3,20,7,15,12,18];
+pages.push(`${head('Vouwblad: Engels → Nederlands', 'Zelfde spel, andere kant op. Lees het Engelse woord hardop voordat je het opschrijft.', 5)}
+<table><tr><th style="width:38mm">Engels</th><th>Nederlands (zelf schrijven)</th><th style="width:40mm">Nog 1 keer</th><th class="fold" style="width:40mm">Antwoord</th></tr>
+${order2.map(i => L.words[i]).map(w => `<tr><td><b>${esc(w.en)}</b></td><td></td><td></td><td class="fold ans">${esc(w.nl)}</td></tr>`).join('')}</table>`);
+
+// 6 Zinnen
+pages.push(`${head('Zinnen: Engels → Nederlands', 'Lees de Engelse zin hardop. Wat betekent hij? Schrijf de Nederlandse zin op. De woord-tip helpt je.', 6)}
+${L.phrases.map((p, i) => `<div class="q"><span class="num">${i + 1}.</span> <b>${esc(p.en)}</b> <span style="font-size:10pt;color:#2F6FB5">(tip: ${esc(p.tip)})</span><div class="lines"></div></div>`).join('')}
+<div class="tip">Antwoorden staan op blad 9.</div>`);
+
+// 7 Grammatica
+const gA = [['🍅','The tomato.','red.','It is','They are'],['🥕🥕','The carrots.','crunchy.','It is','They are'],['🧀','The cheese.','creamy.','It is','They are'],['🍟🍟','The fries.','greasy.','It is','They are'],['🍋','The lemon.','sweet.','It is not','They are not'],['🌮🌮','The tacos.','spicy.','It is not','They are not']];
+pages.push(`${head('Grammatica: it is / they are', '1 ding → it is (het is). Meer dingen → they are (ze zijn). Niet → is not / are not.', 7)}
+<h2>A. Omcirkel het goede begin</h2>
+<div class="two">${gA.map((g, i) => `<div class="q"><span class="num">${i + 1}.</span> ${g[0]} ${g[1]}<br><span class="circle">${g[3]}</span> <span class="circle">${g[4]}</span> ${g[2]}</div>`).join('')}</div>
+<h2>B. Schrijf korter (of langer)</h2>
+<div class="two">${[["It is →",""],["They are →",""],["It is not →",""],["They are not →",""],["It's →",""],["They're not →",""]].map((x,i)=>`<div class="q"><span class="num">${i+1}.</span> ${x[0]} <span style="display:inline-block;width:40mm;border-bottom:1.5px solid #2B2118">&nbsp;</span></div>`).join('')}</div>
+<div class="two"><div><h2>C. Nederlands → Engels</h2>
+${['Het is zoet.','Ze zijn zacht.','Het is niet hard.','Ze zijn niet zuur.'].map((s,i)=>`<div class="q"><span class="num">${i+1}.</span> ${s}<div class="lines" style="height:8mm"></div></div>`).join('')}</div><div>
+<h2>D. Engels → Nederlands</h2>
+${["It's spicy.","They are healthy.","It is not greasy.","They're not crunchy."].map((s,i)=>`<div class="q"><span class="num">${i+1}.</span> <b>${s}</b><div class="lines" style="height:8mm"></div></div>`).join('')}</div></div>`);
+
+// 8 Proeftoets
+const tNE = ['cucumber','beef','crunchy','sour','meatballs','boil','piece','lettuce'].map(id => L.words.find(w => w.id === id));
+const tEN = ['carrot','cheese','creamy','spicy','smelly','bake','cut','greasy'].map(id => L.words.find(w => w.id === id));
+const tP = [L.phrases[1], L.phrases[5], L.phrases[7], L.phrases[0]];
+pages.push(`${head('Proeftoets op papier', 'Doe het zonder spiekbriefje. Je mag rustig de tijd nemen. Kijk daarna zelf na met blad 9.', 8)}
+<div class="two"><div><h2>1. Schrijf in het Engels</h2>${tNE.map((w,i)=>`<div class="q"><span class="num">${i+1}.</span> ${esc(w.nl)} <span style="display:inline-block;width:36mm;border-bottom:1.5px solid #2B2118">&nbsp;</span></div>`).join('')}</div>
+<div><h2>2. Schrijf in het Nederlands</h2>${tEN.map((w,i)=>`<div class="q"><span class="num">${i+1}.</span> <b>${esc(w.en)}</b> <span style="display:inline-block;width:36mm;border-bottom:1.5px solid #2B2118">&nbsp;</span></div>`).join('')}</div></div>
+<h2>3. Wat betekent de zin?</h2>${tP.map((p,i)=>`<div class="q"><span class="num">${i+1}.</span> <b>${esc(p.en)}</b><div class="lines" style="height:8mm"></div></div>`).join('')}
+<h2>4. Grammatica</h2>
+<div class="q"><span class="num">a.</span> 🥒🥒 The cucumbers. <span class="circle">It is</span> <span class="circle">They are</span> green.</div>
+<div class="q"><span class="num">b.</span> 🍰 The cake. <span class="circle">It is</span> <span class="circle">They are</span> sweet.</div>
+<div class="q"><span class="num">c.</span> Schrijf korter: They are → <span style="display:inline-block;width:35mm;border-bottom:1.5px solid #2B2118">&nbsp;</span></div>
+<div class="q"><span class="num">d.</span> Het is niet pittig. → <span style="display:inline-block;width:80mm;border-bottom:1.5px solid #2B2118">&nbsp;</span></div>
+<div class="q"><span class="num">e.</span> <b>They're not soft.</b> → <span style="display:inline-block;width:80mm;border-bottom:1.5px solid #2B2118">&nbsp;</span></div>
+<div style="margin-top:4mm"><span class="score">Aantal goed: ______ van 25</span></div>`);
+
+// 9 Antwoorden
+pages.push(`${head('Antwoorden', 'Om zelf na te kijken. Fout? Geen probleem: schrijf het goede antwoord 1 keer over.', 9)}
+<div class="two"><div>
+<h2>Blad 6 · Zinnen</h2>${L.phrases.map((p,i)=>`<div class="q" style="font-size:11.5pt"><span class="num">${i+1}.</span> ${esc(p.nl)}</div>`).join('')}
+</div><div>
+<h2>Blad 7 · Grammatica</h2>
+<div style="font-size:11.5pt"><b>A.</b> 1 It is · 2 They are · 3 It is · 4 They are · 5 It is not · 6 They are not<br>
+<b>B.</b> 1 It's · 2 They're · 3 It's not · 4 They're not · 5 It is · 6 They are not<br>
+<b>C.</b> 1 It is (It's) sweet. · 2 They are (They're) soft. · 3 It is not (It's not) hard. · 4 They are not (They're not) sour.<br>
+<b>D.</b> 1 Het is pittig. · 2 Ze zijn gezond. · 3 Het is niet vettig. · 4 Ze zijn niet knapperig.</div>
+<h2>Blad 8 · Proeftoets</h2>
+<div style="font-size:11.5pt"><b>1.</b> ${tNE.map((w,i)=>`${i+1} ${esc(w.en)}`).join(' · ')}<br>
+<b>2.</b> ${tEN.map((w,i)=>`${i+1} ${esc(w.nl)}`).join(' · ')}<br>
+<b>3.</b> ${tP.map((p,i)=>`${i+1} ${esc(p.nl)}`).join('<br>')}<br>
+<b>4.</b> a They are · b It is · c They're · d It is not (It's not) spicy. · e Ze zijn niet zacht.</div>
+<div class="tip" style="margin-top:4mm;font-size:11pt"><b>Cijfer-wijzer:</b> 23–25 goed = super! · 19–22 = heel goed · 15–18 = goed op weg · minder = nog even oefenen met de website.</div>
+</div></div>`);
+
+document.getElementById('pages').innerHTML = pages.map((p, i) => `<section class="page">${p}<div class="foot"><span>Finn's Engelse Keuken</span><span>Blad ${i + 1} van ${pages.length}</span></div></section>`).join('');
+</script>
+</body>
+</html>

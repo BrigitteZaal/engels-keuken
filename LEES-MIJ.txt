@@ -1,0 +1,3 @@
+Finn's Engelse Keuken - versie om online te zetten (bijv. GitHub Pages)
+Upload alle bestanden in deze map naar de hoofdmap van je GitHub-repository.
+Voortgang wordt per apparaat bewaard. Via "Mijn voorraadkast" > "Voortgang meenemen" zet je hem over naar een ander apparaat.

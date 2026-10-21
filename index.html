@@ -1,0 +1,51 @@
+<!doctype html>
+<html lang="nl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Finn's Engelse Keuken – oefenen voor de toets</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Lexend:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="styles.css">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🍅</text></svg>">
+</head>
+<body>
+<header class="top">
+  <div class="in">
+    <a class="brand" href="#home"><span class="hat" aria-hidden="true">👨‍🍳</span><span>Finn's Engelse Keuken</span></a>
+    <span class="pill" title="Sterren"><span aria-hidden="true">⭐</span><span id="starCount">0</span></span>
+    <button class="iconbtn" id="setBtn" aria-label="Instellingen">⚙️</button>
+  </div>
+  <nav class="tabs" id="tabs">
+    <a href="#home" data-t="home">Vandaag</a>
+    <a href="#plan" data-t="plan">Planning</a>
+    <a href="#modes" data-t="modes">Oefenen</a>
+    <a href="#shelf" data-t="shelf">Mijn voorraadkast</a>
+    <a href="print.html" target="_blank" rel="noopener">Printbladen</a>
+  </nav>
+</header>
+<main class="wrap" id="app" aria-live="polite"></main>
+
+<div class="modal" id="settings" role="dialog" aria-modal="true" aria-labelledby="setTitle">
+  <div class="card">
+    <h2 id="setTitle">Instellingen</h2>
+    <div class="set"><span>Letters</span><div class="seg" data-k="big"><button data-v="0">Normaal</button><button data-v="1">Groot</button></div></div>
+    <div class="set"><span>Voorleessnelheid</span><div class="seg" data-k="rate"><button data-v="0.6">Slak</button><button data-v="0.8">Rustig</button><button data-v="1">Normaal</button></div></div>
+    <div class="set"><span>Engelse stem</span><select id="voiceSel"></select></div>
+    <div class="set"><span>Opdrachten voorlezen (NL)</span><div class="seg" data-k="readNl"><button data-v="1">Aan</button><button data-v="0">Uit</button></div></div>
+    <div class="set"><span>Geluidjes</span><div class="seg" data-k="sfx"><button data-v="1">Aan</button><button data-v="0">Uit</button></div></div>
+    <p class="small muted" style="margin-top:12px" id="persistNote"></p>
+    <p class="small" style="margin-top:4px"><a href="#shelf" id="toSync" style="color:var(--sky);font-weight:700">Voortgang meenemen naar tablet of laptop →</a></p>
+    <div class="row" style="justify-content:space-between">
+      <button class="btn ghost" id="resetBtn">Alles opnieuw beginnen</button>
+      <button class="btn" id="closeSet">Klaar</button>
+    </div>
+  </div>
+</div>
+<canvas id="confetti"></canvas>
+<script src="data.js"></script>
+<script src="storage.js"></script>
+<script src="app.js"></script>
+</body>
+</html>
